@@ -1,0 +1,73 @@
+---
+title: "Collaborative data science project"
+format: html
+editor: visual
+---
+
+```{r}
+
+# Load required libraries
+library(psych)
+library(lavaan)
+
+# Load data for normal hearing individuals and hearing impaired population
+normal_hearing_data <- read.csv("NH_DATA.csv")
+hearing_impaired_data <- read.csv("HI_DATA.csv")
+
+# Select numeric variables
+numeric_normal <- normal_hearing_data[sapply(normal_hearing_data, is.numeric)]
+numeric_impaired <- hearing_impaired_data[sapply(hearing_impaired_data, is.numeric)]
+
+# Perform factor analysis for normal hearing individuals
+factor_analysis_normal <- fa(numeric_normal, nfactors = 1, rotate = "varimax")
+
+# Print factor analysis results for normal hearing individuals
+print(factor_analysis_normal)
+
+# Perform factor analysis for hearing impaired population
+factor_analysis_impaired <- fa(numeric_impaired, nfactors = 1, rotate = "varimax")
+
+# Print factor analysis results for hearing impaired population
+print(factor_analysis_impaired)
+
+```
+
+```{r}
+
+library(psych)
+
+# Define the data for normal hearing group and hearing impaired group
+normal_hearing_data <- read.csv("NH_DATA.csv")
+hearing_impaired_data <- read.csv("HI_DATA.csv")
+
+# Define the questionnaire items for each group based on the column names
+questionnaire_items <- c("E1", "E2", "S3", "E4", "S5", "S6", "E7", "S8", "E9", "S10")
+
+
+# Define a function to calculate factor loadings and Cronbach's alpha for each group
+get_factor_analysis <- function(data, group_name) {
+  # Perform factor analysis
+  factor_analysis <- fa(data, nfactors = 1, rotate = "varimax")
+  
+  # Extract factor loadings
+  factor_loadings <- factor_analysis$loadings
+  
+  # Print factor loadings
+  
+  print(factor_loadings)
+  
+  # Calculate Cronbach's alpha
+  cronbach_alpha <- alpha(data)$total$raw_alpha
+  
+  # Print Cronbach's alpha
+  print(cronbach_alpha)
+}
+
+# Calculate factor analysis and Cronbach's alpha for normal hearing group
+get_factor_analysis(normal_hearing_data[questionnaire_items], "Normal Hearing")
+
+# Calculate factor analysis and Cronbach's alpha for hearing impaired group
+get_factor_analysis(hearing_impaired_data[questionnaire_items], "Hearing Impaired")
+
+
+```
