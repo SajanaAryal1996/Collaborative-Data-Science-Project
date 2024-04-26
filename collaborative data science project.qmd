@@ -4,70 +4,91 @@ format: html
 editor: visual
 ---
 
-```{r}
+1.Exploratory factor analysis
 
-# Load required libraries
+```{r}
+# Load required library
 library(psych)
-library(lavaan)
 
 # Load data for normal hearing individuals and hearing impaired population
-normal_hearing_data <- read.csv("NH_DATA.csv")
-hearing_impaired_data <- read.csv("HI_DATA.csv")
-
-# Select numeric variables
-numeric_normal <- normal_hearing_data[sapply(normal_hearing_data, is.numeric)]
-numeric_impaired <- hearing_impaired_data[sapply(hearing_impaired_data, is.numeric)]
-
-# Perform factor analysis for normal hearing individuals
-factor_analysis_normal <- fa(numeric_normal, nfactors = 1, rotate = "varimax")
-
-# Print factor analysis results for normal hearing individuals
-print(factor_analysis_normal)
-
-# Perform factor analysis for hearing impaired population
-factor_analysis_impaired <- fa(numeric_impaired, nfactors = 1, rotate = "varimax")
-
-# Print factor analysis results for hearing impaired population
-print(factor_analysis_impaired)
-
-```
-
-```{r}
-
-library(psych)
-
-# Define the data for normal hearing group and hearing impaired group
 normal_hearing_data <- read.csv("NH_DATA.csv")
 hearing_impaired_data <- read.csv("HI_DATA.csv")
 
 # Define the questionnaire items for each group based on the column names
 questionnaire_items <- c("E1", "E2", "S3", "E4", "S5", "S6", "E7", "S8", "E9", "S10")
 
-
-# Define a function to calculate factor loadings and Cronbach's alpha for each group
-get_factor_analysis <- function(data, group_name) {
+# Define a function to calculate Cronbach's alpha and factor loadings for each group
+calculate_alpha_and_loadings <- function(data, group_name) {
+  # Select numeric variables
+  numeric_data <- data[sapply(data, is.numeric)]
+  
   # Perform factor analysis
-  factor_analysis <- fa(data, nfactors = 1, rotate = "varimax")
+  factor_analysis <- fa(numeric_data, nfactors = 1, rotate = "varimax")
   
   # Extract factor loadings
   factor_loadings <- factor_analysis$loadings
   
   # Print factor loadings
-  
+  print(paste("Factor Loadings for", group_name))
   print(factor_loadings)
   
-  # Calculate Cronbach's alpha
-  cronbach_alpha <- alpha(data)$total$raw_alpha
+  # Calculate Cronbach's alpha for all questionnaire items
+  cronbach_alpha <- alpha(numeric_data)$total$raw_alpha
   
   # Print Cronbach's alpha
-  print(cronbach_alpha)
+  print(paste("Cronbach's Alpha for", group_name, ":", cronbach_alpha))
 }
 
-# Calculate factor analysis and Cronbach's alpha for normal hearing group
-get_factor_analysis(normal_hearing_data[questionnaire_items], "Normal Hearing")
+# Calculate Cronbach's alpha and factor loadings for normal hearing group
+calculate_alpha_and_loadings(normal_hearing_data[questionnaire_items], "Normal Hearing")
 
-# Calculate factor analysis and Cronbach's alpha for hearing impaired group
-get_factor_analysis(hearing_impaired_data[questionnaire_items], "Hearing Impaired")
-
+# Calculate Cronbach's alpha and factor loadings for hearing impaired group
+calculate_alpha_and_loadings(hearing_impaired_data[questionnaire_items], "Hearing Impaired")
 
 ```
+
+2.  Confirmatory factor analysis
+
+    ```{r}
+    # Load required libraries
+    library(lavaan)
+
+    # Load data for normal hearing individuals and hearing impaired population
+    normal_hearing_data <- read.csv("NH_DATA.csv")
+    hearing_impaired_data <- read.csv("HI_DATA.csv")
+
+    # Define the questionnaire items for each group based on the column names
+    questionnaire_items <- c("E1", "E2", "S3", "E4", "S5", "S6", "E7", "S8", "E9", "S10")
+
+    # Define a function to perform confirmatory factor analysis (CFA) and calculate Cronbach's alpha and factor loadings for each group
+    perform_CFA <- function(data, group_name) {
+      # Define the CFA model
+      model <- '
+        # Define latent variable
+        factor =~ E1 + E2 + S3 + E4 + S5 + S6 + E7 + S8 + E9 + S10
+      '
+      
+      # Perform CFA
+      fit <- lavaan::cfa(model, data = data, std.lv = TRUE)
+      
+      # Print standardized factor loadings
+      print(paste("Standardized Factor Loadings for", group_name))
+      print(inspect(fit, "std")$lambda)
+      
+      # Extract standardized factor loadings
+      factor_loadings <- inspect(fit, "std")$lambda
+      
+      # Calculate Cronbach's alpha for all questionnaire items
+      cronbach_alpha <- alpha(data)$total$raw_alpha
+      
+      # Print Cronbach's alpha
+      print(paste("Cronbach's Alpha for", group_name, ":", cronbach_alpha))
+    }
+
+    # Perform confirmatory factor analysis and Cronbach's alpha for normal hearing group
+    perform_CFA(normal_hearing_data[questionnaire_items], "Normal Hearing")
+
+    # Perform confirmatory factor analysis and Cronbach's alpha for hearing impaired group
+    perform_CFA(hearing_impaired_data[questionnaire_items], "Hearing Impaired")
+
+    ```
