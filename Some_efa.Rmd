@@ -19,6 +19,11 @@ library(dplyr)
 ```
 
 ```{r}
+library(FACTOR)
+library(dplyr)
+```
+
+```{r}
 ex5_25 <- read.table("http://statmodel.com/usersguide/chap5/ex5.25.dat")
 names(ex5_25) = paste0("y",1:12)
 
@@ -32,12 +37,25 @@ hearing_impaired_data <- read.csv("HI_DATA.csv")
 all_data <- bind_rows(normal_hearing_data, hearing_impaired_data)
 ```
 
+```{r}
+perform_CFA('
+    # Define latent variable
+    factor =~ E1 + E2 + S3 + E4 + S5 + S6 + E7 + S8 + E9 + S10
+  ' ,normal_hearing_data[var.names], "Normal Hearing")
+```
+
 The efa for HI with two factors.
 ```{r}
 var.names <- c("E1","E2","S3","E4","S5","S6","E7","S8", "E9", "S10")
+```
+```{r}
 fit <- efa(data = hearing_impaired_data[,var.names], nfactors = 1:2)
 summary(fit)
 
+```
+
+```{r}
+data <- hearing_impaired_data[,var.names]
 ```
 
 Data 
@@ -59,9 +77,8 @@ summary(fit_2)
 
 How to decide number of factors?
 ```{r}
-
-correlation <- cor(fit_2)
-
+var.names <- c("E1","E2","S3","E4","S5","S6","E7","S8", "E9", "S10")
+calculate_alpha_and_loadings(normal_hearing_data[var.names], "NH")
 
 ```
 
