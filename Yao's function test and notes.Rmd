@@ -5,7 +5,7 @@ date: "2024-04-27"
 ---
 We can either install.packages with this way or install manually. In this line of code we have to out tar.gz at the same level of the folder. I think we may also use a github URL instead in the vignette to provide the package file. I named the tar.gz with a different name so that it doesn't erase your work.
 ```{r}
-install.packages("./FACTOR_0.1.0.tar.gz", repos = NULL, type = "source")
+install.packages("./FACTOR_0.1.1.tar.gz", repos = NULL, type = "source")
 ```
 
 ```{r}
