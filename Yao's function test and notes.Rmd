@@ -1,0 +1,79 @@
+---
+title: "test function and notes from Yao"
+output: html_document
+date: "2024-04-27"
+---
+We can either install.packages with this way or install manually. In this line of code we have to out tar.gz at the same level of the folder. I think we may also use a github URL instead in the vignette to provide the package file. I named the tar.gz with a different name so that it doesn't erase your work.
+```{r}
+install.packages("./FACTOR_0.1.0.tar.gz", repos = NULL, type = "source")
+```
+
+```{r}
+library(FACTOR)
+```
+
+To make it simpler in testing, I'll only import a test csv I made and HI group
+```{r}
+hearing_impaired_data <- read.csv("HI_DATA.csv")
+test <- read.csv("./test.csv") #a dummy csv I made for conditionally remove NA based on question completion
+```
+
+```{r}
+qlist <- c("A", "B", "C", "D", "E", "F", "G") #just the ones in the test csv with more NAs. Sajana's data don't come with a lot of NAs
+var.names <- c("E1","E2","S3","E4","S5","S6","E7","S8", "E9", "S10")
+```
+
+
+To have these functions run, we should add packages dplyr, performance and magrittr in addition. Please also run usethis::use_pipe() to make sure pipes in the function works.
+```{r}
+included_sample(test, qlist, 0.6)
+```
+
+```{r}
+get_loadings(hearing_impaired_data[var.names], "HI")
+```
+```{r}
+get_alpha(hearing_impaired_data[var.names], "HI")
+```
+
+Cross check with the 3rd and 4th function. Of course these two functions also allow us to input models. It is strongly recommended that models were defined separately.
+
+Model_1 is what Sajana used. I also made one more model (really just based on the letter in the question item)
+```{r}
+model_1 <- "
+    # Define latent variable
+    factor =~ E1 + E2 + S3 + E4 + S5 + S6 + E7 + S8 + E9 + S10
+  "
+```
+
+```{r}
+model_2 <- "
+    # Define latent variable
+    factor1 =~ E1 + E2 + E4 + E7 + E9
+    factor2 =~ S3 + S5 + S6 + S8 + S10
+  "
+```
+
+These two functions still output both loadings and alpha. This is already fixed when you install the package.
+```{r}
+get_loadings_model(model_1, hearing_impaired_data[var.names], "HI")
+```
+
+```{r}
+get_alpha_model(model_1, hearing_impaired_data[var.names], "HI")
+```
+
+This could help us to consider if we want to add a factor. Not significance so no need to add to a two-factor model.
+```{r}
+compare_fit(model_1, model_2, hearing_impaired_data[var.names])
+```
+
+handy_fit helps to outpus some crucial statistics. These are all extracted from lavaan. I picked these statistics based on another similar questionnaire adaptaion paper on diabetes. I pushed a figure on how they report statistics (and some reference level) and the article itself. If we have the source, we could also add a pure output function with all reference levels for these statistics. The figure comes with some.
+```{r}
+handy_fit(model_1, hearing_impaired_data[var.names])
+```
+
+Sajana's paper did KMO test, I used a function in package "performance" and let the user to choose from KMO or Bartlett
+```{r}
+pick_check("KMO", hearing_impaired_data[var.names])
+```
